@@ -38,6 +38,5 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Expected %d moves, got %d\n", expected, output);
     exit(3);
   }
-
   return 0;
 }
