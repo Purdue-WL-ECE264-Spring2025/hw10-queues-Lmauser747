@@ -34,6 +34,9 @@ void insert_at_tail(struct linked_list *list, size_t value) {
 }
 
 size_t remove_from_head(struct linked_list *list) { 
+  if(list->head == NULL){
+    return 0;
+  }
   struct list_node *temp = list->head->next;
   size_t value = list->head->value;
   free(list->head);
@@ -70,15 +73,16 @@ size_t remove_from_tail(struct linked_list *list) {
 }
 
 void free_list(struct linked_list list) {
-  struct list_node *temp = list.head;
-  struct list_node *temp_2 = temp->next;
-  while(temp->next != NULL){
-    free(temp);
-    temp = temp_2;
-    temp_2 = temp->next;
+  while(list.head != NULL){
+    remove_from_head(&list);
   }
-
-  free(temp);
+  /*struct list_node *temp = list.head;
+  struct list_node *temp2;
+  while(temp != NULL){
+    temp2 = temp->next;
+    free(temp);
+    temp = temp2; 
+  }*/
 }
 
 // Utility function to help you debugging, do not modify
