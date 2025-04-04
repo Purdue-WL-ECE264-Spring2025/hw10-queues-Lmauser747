@@ -10,7 +10,6 @@ struct game_state {
 };
 
 uint64_t serialize(struct game_state state);
-uint64_t mod_serialize(struct game_state state);
 struct game_state deserialize(uint64_t state);
 
 void move_up(struct game_state *state);

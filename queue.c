@@ -19,7 +19,7 @@ struct game_state dequeue(struct queue *q) {
 int check(struct linked_list *list, struct game_state state){
     struct list_node *temp = list->head;
     while(temp != NULL){
-        if(mod_serialize(state) == temp->value){
+        if(serialize(state) == temp->value){
             return 1;
         }
 
@@ -31,9 +31,13 @@ int check(struct linked_list *list, struct game_state state){
 
 int correct_state(struct game_state *state){
     size_t correct_state = 81985526993846272;
-    if(mod_serialize(*state) ==  correct_state){
+    int steps = state->num_steps;
+    state->num_steps = 0;
+    if(serialize(*state) ==  correct_state){
+        state->num_steps = steps;
         return 1;
     }else{
+        state->num_steps = steps;
         return 0;
     }
 }
@@ -50,6 +54,7 @@ int number_of_moves(struct game_state start) {
 
     struct game_state visited_node = start;
     struct game_state next_state;
+    int steps;
 
     while(q.data.head != NULL){
         iter++;
@@ -67,30 +72,42 @@ int number_of_moves(struct game_state start) {
         next_state = visited_node;
 
         move_up(&next_state);
+        steps = next_state.num_steps;
+        next_state.num_steps = 0;
         if(!check(&visited, next_state)){
+            insert_at_head(&visited, serialize(next_state));
+            next_state.num_steps = steps;
             enqueue(&q, next_state);
-            insert_at_head(&visited, mod_serialize(next_state));
         }
         next_state = visited_node;
 
         move_left(&next_state);
+        steps = next_state.num_steps;
+        next_state.num_steps = 0;
         if(!check(&visited, next_state)){
+            insert_at_head(&visited, serialize(next_state));
+            next_state.num_steps = steps;
             enqueue(&q, next_state);
-            insert_at_head(&visited, mod_serialize(next_state));
         }
         next_state = visited_node;
 
         move_right(&next_state);
+        steps = next_state.num_steps;
+        next_state.num_steps = 0;
         if(!check(&visited, next_state)){
+            insert_at_head(&visited, serialize(next_state));
+            next_state.num_steps = steps;
             enqueue(&q, next_state);
-            insert_at_head(&visited, mod_serialize(next_state));
         }
         next_state = visited_node;
 
         move_down(&next_state);
+        steps = next_state.num_steps;
+        next_state.num_steps = 0;
         if(!check(&visited, next_state)){
+            insert_at_head(&visited, serialize(next_state));
+            next_state.num_steps = steps;
             enqueue(&q, next_state);
-            insert_at_head(&visited, mod_serialize(next_state));
         }
 
     }
