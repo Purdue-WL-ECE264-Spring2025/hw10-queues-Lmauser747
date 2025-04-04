@@ -61,6 +61,51 @@ uint64_t serialize(struct game_state state) {
   return buffer;
 }
 
+uint64_t mod_serialize(struct game_state state) {
+  uint64_t buffer = 0;
+  int positions[16] = {0};
+  for (int row = 0; row < 4; row++) {
+    for (int col = 0; col < 4; col++) {
+      positions[state.tiles[row][col]] = (row << 2) | col;
+    }
+  }
+
+  int positions_written[16] = {0};
+  for (int i = 1; i <= 8; i++) {
+    buffer <<= 4;
+    buffer |= (positions[i] & 0b1111);
+    positions_written[positions[i]] = 1;
+  }
+
+  int *compressed = get_compressed(positions_written, 16);
+  for (int i = 9; i <= 12; i++) {
+    buffer <<= 3;
+    buffer |= compressed[positions[i]] & 0b111;
+    positions_written[positions[i]] = 1;
+  }
+
+  free(compressed);
+  compressed = get_compressed(positions_written, 16);
+  for (int i = 13; i <= 14; i++) {
+    buffer <<= 2;
+    buffer |= compressed[positions[i]] & 0b11;
+    positions_written[positions[i]] = 1;
+  }
+
+  free(compressed);
+  compressed = get_compressed(positions_written, 16);
+  for (int i = 15; i <= 15; i++) {
+    buffer <<= 1;
+    buffer |= compressed[positions[i]] & 0b1;
+    positions_written[positions[i]] = 1;
+  }
+
+  buffer <<= 15;
+
+  free(compressed);
+  return buffer;
+}
+
 int *get_decompressed(int *read, int max) {
   int *decompressed = calloc(max, sizeof(int));
   int out_idx = 0;
