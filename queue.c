@@ -24,8 +24,9 @@ size_t mod_serialize(struct game_state state){
 int check(struct linked_list list, struct game_state state){
     struct list_node *temp = list.head;
     state.num_steps = 0;
+    size_t state_serial = serialize(state);
     while(temp != NULL){
-        if(serialize(state) == temp->value){
+        if(state_serial == temp->value){
             return 1;
         }
 
