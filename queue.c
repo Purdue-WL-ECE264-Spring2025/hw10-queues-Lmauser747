@@ -21,10 +21,11 @@ size_t mod_serialize(struct game_state state){
     return serialize(state);
 }
 
-int check(struct linked_list *list, struct game_state state){
-    struct list_node *temp = list->head;
+int check(struct linked_list list, struct game_state state){
+    struct list_node *temp = list.head;
+    state.num_steps = 0;
     while(temp != NULL){
-        if(mod_serialize(state) == temp->value){
+        if(serialize(state) == temp->value){
             return 1;
         }
 
@@ -34,9 +35,10 @@ int check(struct linked_list *list, struct game_state state){
     return 0;
 }
 
-int correct_state(struct game_state *state){
+int correct_state(struct game_state state){
     size_t correct_state = 81985526993846272;
-    if(mod_serialize(*state) ==  correct_state){
+    state.num_steps = 0;
+    if(serialize(state) ==  correct_state){
         return 1;
     }else{
         return 0;
@@ -54,13 +56,12 @@ int number_of_moves(struct game_state start) {
     enqueue(&q, start);
 
     struct game_state visited_node = start;
-    struct game_state next_state;
 
     while(q.data.head != NULL){
         iter++;
         visited_node = dequeue(&q);
         
-        if(correct_state(&visited_node)){
+        if(correct_state(visited_node)){
             free_list(q.data);
             free_list(visited);
             printf("%d\n", iter);
@@ -68,7 +69,41 @@ int number_of_moves(struct game_state start) {
             return visited_node.num_steps;
         }
         
-        next_state = visited_node;
+        struct game_state up = visited_node;
+        struct game_state down = visited_node;
+        struct game_state left = visited_node;
+        struct game_state right = visited_node;
+
+        move_up(&up);
+        move_down(&down);
+        move_left(&left);
+        move_right(&right);
+
+        if(up.num_steps != visited_node.num_steps && !check(visited, up)){
+            enqueue(&q, up);
+            up.num_steps = 0;
+            insert_at_head(&visited, serialize(up));
+        }
+
+        if(down.num_steps != visited_node.num_steps && !check(visited, down)){
+            enqueue(&q, down);
+            down.num_steps = 0;
+            insert_at_head(&visited, serialize(down));
+        }
+
+        if(left.num_steps != visited_node.num_steps && !check(visited, left)){
+            enqueue(&q, left);
+            left.num_steps = 0;
+            insert_at_head(&visited, serialize(left));
+        }
+
+        if(right.num_steps != visited_node.num_steps && !check(visited, right)){
+            enqueue(&q, right);
+            right.num_steps = 0;
+            insert_at_head(&visited, serialize(right));
+        }
+
+        /*next_state = visited_node;
 
         move_up(&next_state);
         if(visited_node.empty_row != 3 && !check(&visited, next_state)){
@@ -95,7 +130,7 @@ int number_of_moves(struct game_state start) {
         if(visited_node.empty_col != 3 && !check(&visited, next_state)){
             insert_at_head(&visited, mod_serialize(next_state));
             enqueue(&q, next_state);
-        }
+        }*/
 
     }
 
